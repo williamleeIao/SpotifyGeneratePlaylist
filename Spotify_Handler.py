@@ -36,12 +36,12 @@ class Spotify_Operation:
         print(self.token)
 
     def refresh_token(self):
-        #if self.auth_info.is_token_expired(self.tokenInfo):
+        # if self.auth_info.is_token_expired(self.tokenInfo):
         token_information = self.auth_info.refresh_access_token(self.tokenInfo['refresh_token'])
         self.tokenInfo = token_information
         self.token = token_information['access_token']
         print()
-            # sp = spotipy.Spotify(auth=self.token)  should not be needed
+        # sp = spotipy.Spotify(auth=self.token)  should not be needed
 
     def create_playlist(self, playlist_name="Youtube Liked Vids", description="All Liked Youtube Videos"):
         """Create A New Playlist"""
@@ -65,6 +65,25 @@ class Spotify_Operation:
 
         # playlist id
         return response_json["id"]
+
+    def get_song_from_platlist(self, playlist_id):
+        query = "https://api.spotify.com/v1/playlists/{}/tracks".format(
+            playlist_id,
+        )
+
+        response = requests.get(
+            query,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": "Bearer {}".format(self.token)
+            }
+        )
+
+        response_json = response.json()
+        list_track = [individual['track']['name']for individual in response_json['items']]
+
+        print(list_track)
+        return list_track
 
     def add_song_to_playlist(self, song_id, playlist_id):
         query = "https://api.spotify.com/v1/playlists/{}/tracks?uris={}".format(
@@ -165,7 +184,8 @@ def main():
     print(spotify_op.token_is_expired())
     spotify_op.refresh_token()
     print(spotify_op.read_token())
-    song_id = spotify_op.get_spotify_uri("Love in the First Degree ","Bananarama")
+    song_id = spotify_op.get_spotify_uri("Love in the First Degree ", "Bananarama")
+    spotify_op.get_song_from_platlist("6hf5ZoJnNOf1VOStLAdfgf")
     playlist_id = spotify_op.get_playlist_id(spotify_user_id)
 
     song_in_the_playlist = [spotify_op.get_playlists_items(
