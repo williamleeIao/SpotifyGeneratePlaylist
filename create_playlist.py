@@ -8,7 +8,7 @@ import requests
 import youtube_dl
 
 from exceptions import ResponseException
-from secrets import spotify_token, spotify_user_id
+from secrets import clientId, clientSecret
 
 
 class CreatePlaylist:
@@ -44,6 +44,9 @@ class CreatePlaylist:
             part="snippet,contentDetails,statistics",
             myRating="like"
         )
+        # request = self.youtube_client.videos.list(
+        #
+        # )
         response = request.execute()
 
         # collect each video and get important information
@@ -69,6 +72,12 @@ class CreatePlaylist:
                     "spotify_uri": self.get_spotify_uri(song_name, artist)
 
                 }
+    def add_playlist_to_spotify(self):
+        song_name = "Love and the City"
+        artist = "Rene Liu"
+        self.all_song_info = {
+            "spotify_uri": self.get_spotify_uri(song_name, artist)
+        }
 
     def create_playlist(self):
         """Create A New Playlist"""
@@ -79,13 +88,13 @@ class CreatePlaylist:
         })
 
         query = "https://api.spotify.com/v1/users/{}/playlists".format(
-            spotify_user_id)
+            clientId)
         response = requests.post(
             query,
             data=request_body,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer {}".format(spotify_token)
+                "Authorization": "Bearer {}".format(clientSecret)
             }
         )
         response_json = response.json()
@@ -103,7 +112,7 @@ class CreatePlaylist:
             query,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer {}".format(spotify_token)
+                "Authorization": "Bearer {}".format(clientSecret)
             }
         )
         response_json = response.json()
@@ -118,10 +127,10 @@ class CreatePlaylist:
         """Add all liked songs into a new Spotify playlist"""
         # populate dictionary with our liked songs
         self.get_liked_videos()
-
+        #self.add_playlist_to_spotify()  # temporary replace like video
         # collect all of uri
-        uris = [info["spotify_uri"]
-                for song, info in self.all_song_info.items()]
+        # uris = [info["spotify_uri"]
+        #         for song, info in self.all_song_info.items()]
 
         # create a new playlist
         playlist_id = self.create_playlist()
@@ -137,7 +146,7 @@ class CreatePlaylist:
             data=request_data,
             headers={
                 "Content-Type": "application/json",
-                "Authorization": "Bearer {}".format(spotify_token)
+                "Authorization": "Bearer {}".format(clientSecret)
             }
         )
 
